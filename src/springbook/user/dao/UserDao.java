@@ -13,36 +13,14 @@ public class UserDao {
         this.dataSource = dataSource;
     }
 
-    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
+    private JdbcContext jdbcContext;
 
-        try {
-            c = dataSource.getConnection();
-
-            ps = stmt.makePreparedStatement(c);
-
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+    public void setJdbcContext(JdbcContext jdbcContext){
+        this.jdbcContext = jdbcContext;
     }
 
     public void add(final User user) throws SQLException {
-        jdbcContextWithStatementStrategy(
+        this.jdbcContext.workWithStatementStrategy(
                 new StatementStrategy() {
                     public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
                         PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
@@ -52,7 +30,8 @@ public class UserDao {
 
                         return ps;
                     }
-                });
+                }
+        );
     }
 
     public User get(String id) throws SQLException {
@@ -82,13 +61,13 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatementStrategy(
+        this.jdbcContext.workWithStatementStrategy(
                 new StatementStrategy() {
                     public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                        PreparedStatement ps = c.prepareStatement("delete from users");
-                        return ps;
+                            PreparedStatement ps = c.prepareStatement("delete from users");
+                            return ps;
+                        }
                     }
-                }
         );
     }
 
