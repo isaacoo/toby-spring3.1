@@ -1,10 +1,7 @@
 package springbook.user.dao;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import springbook.user.domain.User;
 
@@ -13,8 +10,12 @@ import java.sql.*;
 import java.util.List;
 
 public class UserDao {
-    private DataSource dataSource;
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
     private JdbcTemplate jdbcTemplate;
+
     private RowMapper<User> userMapper =
             new RowMapper<User>() {
                 @Override
@@ -27,11 +28,6 @@ public class UserDao {
                 }
             };
 
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.dataSource = dataSource;
-    }
-
 
     public void add(final User user) throws SQLException {
         this.jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)", user.getId(), user.getName(), user.getPassword());
@@ -40,18 +36,10 @@ public class UserDao {
     public User get(String id) throws SQLException {
         return this.jdbcTemplate.queryForObject("select * from users where id = ?",
                 new Object[]{id}, this.userMapper);
-
     }
 
     public void deleteAll() throws SQLException {
-        this.jdbcTemplate.update(
-                new PreparedStatementCreator() {
-                    @Override
-                    public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                        return connection.prepareStatement("delete from users");
-                    }
-                }
-        );
+        this.jdbcTemplate.update("delete from users");
     }
 
 
@@ -60,7 +48,6 @@ public class UserDao {
     }
 
     public List<User> getAll() {
-        return this.jdbcTemplate.query("select * from users order by id",
-                this.userMapper);
+        return this.jdbcTemplate.query("select * from users order by id", this.userMapper);
     }
 }
