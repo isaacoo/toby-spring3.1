@@ -9,6 +9,9 @@ public class User {
     int login;
     int recommend;
 
+    public User() {
+    }
+
     public User(String id, String name, String password, Level level, int login, int recommend) {
         this.id = id;
         this.name = name;
@@ -16,9 +19,6 @@ public class User {
         this.level = level;
         this.login = login;
         this.recommend = recommend;
-    }
-
-    public User() {
     }
 
     public String getId() {
@@ -67,6 +67,12 @@ public class User {
 
     public void setRecommend(int recommend) {
         this.recommend = recommend;
+    }
+
+    @Override
+    public String toString() {
+        return  "User [id=" + id + ", name=" + name + ", passwor=" + password
+                + ", level=" + level + ", login=" + login + ", recommend=" + recommend + "]";
     }
 }
 
