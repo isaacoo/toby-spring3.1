@@ -71,8 +71,17 @@ public class User {
 
     @Override
     public String toString() {
-        return  "User [id=" + id + ", name=" + name + ", passwor=" + password
+        return "User [id=" + id + ", name=" + name + ", passwor=" + password
                 + ", level=" + level + ", login=" + login + ", recommend=" + recommend + "]";
+    }
+
+    public void upgradeLevel() {
+        Level nextLevel = this.level.nextLevel();
+        if (nextLevel == null) {
+            throw new IllegalArgumentException(this.level + "은 업그레이드가 불가능합니다");
+        } else {
+            this.level = nextLevel;
+        }
     }
 }
 
