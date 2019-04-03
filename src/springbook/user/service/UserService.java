@@ -26,34 +26,37 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public void upgradeLevels() throws Exception {
+    public void upgradeLevels() {
         PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
 
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {
-                if (canUpgradeLevel(user)){
+                if (canUpgradeLevel(user)) {
                     upgradeLevel(user);
                 }
             }
             transactionManager.commit(status);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             transactionManager.rollback(status);
             throw e;
         }
     }
 
-    public boolean canUpgradeLevel(User user){
+    public boolean canUpgradeLevel(User user) {
         Level currentLevel = user.getLevel();
         switch (currentLevel) {
-            case BASIC: return (user.getLogin() >= MIN_LOGCOUNT_FOR_SILVER);
-            case SILVER: return (user.getRecommend() >= MIN_RECOMMEND_FOR_GOLD);
-            case GOLD: return false;
-            default: throw new IllegalArgumentException("Unknown Level: " + currentLevel);
+            case BASIC:
+                return (user.getLogin() >= MIN_LOGCOUNT_FOR_SILVER);
+            case SILVER:
+                return (user.getRecommend() >= MIN_RECOMMEND_FOR_GOLD);
+            case GOLD:
+                return false;
+            default:
+                throw new IllegalArgumentException("Unknown Level: " + currentLevel);
         }
     }
-
 
 
     public void add(User user) {
