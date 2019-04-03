@@ -6,7 +6,7 @@ import springbook.user.domain.User;
 
 import java.util.List;
 
-public class UserService implements UserLevelUpgradePolicy {
+public class UserService {
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
     UserDao userDao;
@@ -41,7 +41,7 @@ public class UserService implements UserLevelUpgradePolicy {
         userDao.add(user);
     }
 
-    public void upgradeLevel(User user) {
+    protected void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
     }
