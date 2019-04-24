@@ -1,6 +1,6 @@
 package springbook.learningtest.jdk.proxy;
 
-import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.springframework.aop.framework.ProxyFactoryBean;
@@ -48,7 +48,7 @@ public class DynamicProxyTest {
         assertThat(proxiedHello.sayThankYou("Toby"), is("THANK YOU TOBY"));
     }
 
-    static class UppercaseAdvice implements Advice {
+    static class UppercaseAdvice implements MethodInterceptor {
         public Object invoke(MethodInvocation invocation) throws Throwable {
             String ret = (String) invocation.proceed();
             return ret.toUpperCase();
