@@ -120,7 +120,7 @@ public class UserServiceTest {
         TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class);
         txProxyFactoryBean.setTarget(testUserService);
         UserService txUserService = (UserService) txProxyFactoryBean.getObject();
-//
+
 //        TransactionHandler txHandler = new TransactionHandler();
 //        txHandler.setTarget(testUserService);
 //        txHandler.setTransactionManager(transactionManager);
