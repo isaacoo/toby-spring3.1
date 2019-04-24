@@ -1,6 +1,7 @@
-package springbook.learningtest.jdk;
+package springbook.learningtest.spring.factorybean;
 
 import org.springframework.beans.factory.FactoryBean;
+import springbook.learningtest.jdk.Message;
 
 public class MessageFactoryBean implements FactoryBean<Message> {
     String text;
