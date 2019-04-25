@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
-        <property name="advice" ref="transcationAdvice" />
-        <property name="pointcut" ref="transactionPointcut" />
+    <bean id="transactionAdvice" class="springbook.user.service.TransactionAdvice">
+        <property name="transactionManager" ref="transactionManager" />
     </bean>
 
     <bean id="transactionPointcut" class="org.springframework.aop.support.NameMatchMethodPointcut">
         <property name="mappedName" value="upgrade*" />
     </bean>
 
-    <bean id="transcationAdvice" class="springbook.user.service.TransactionAdvice">
-        <property name="transactionManager" ref="transactionManager" />
+    <bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+        <property name="advice" ref="transactionAdvice" />
+        <property name="pointcut" ref="transactionPointcut" />
     </bean>
 
     <!--
@@ -29,10 +29,11 @@
         <property name="target" ref="userServiceImpl" />
         <property name="interceptorNames">
             <list>
-                <value>transacationAdvisor</value>
+                <value>transactionAdvisor</value>
             </list>
         </property>
     </bean>
+
 
     <bean id="userServiceImpl" class="springbook.user.service.UserServiceImpl">
         <property name="userDao" ref="userDao" />

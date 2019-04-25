@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailException;
@@ -40,6 +41,23 @@ public class UserServiceTest {
     UserServiceImpl userServiceImpl;
     @Autowired
     ApplicationContext context;
+    @Autowired
+    UserServiceImpl userService;
+    @Autowired
+    UserDao userDao;
+    List<User> users;
+
+
+    @Before
+    public void setUp() {
+        users = Arrays.asList(
+                new User("bumjin", "박범진", "p1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0, "bumjin@ruu.kr"),
+                new User("joytouch", "강명성", "p2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0, "joytouch@ruu.kr"),
+                new User("erwins", "신승한", "p3", Level.SILVER, 60, MIN_RECOMMEND_FOR_GOLD - 1, "erwins@ruu.kr"),
+                new User("madnite1", "이상호", "p4", Level.SILVER, 60, MIN_RECOMMEND_FOR_GOLD, "madnite1@ruu.kr"),
+                new User("green", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE, "green@ruu.kr")
+        );
+    }
 
     static class TestUserService extends UserServiceImpl {
         private String id;
@@ -112,24 +130,14 @@ public class UserServiceTest {
 
     @Test
     @DirtiesContext
-    public void upgradeAllOrNothing() throws Exception {
-        UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserDao(this.userDao);
+    public void upgradeAllOrNothing() {
+        TestUserService testUserService = new TestUserService(users.get(3).getId());
+        testUserService.setUserDao(userDao);
         testUserService.setMailSender(mailSender);
 
-        TxProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", TxProxyFactoryBean.class);
+        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
         txProxyFactoryBean.setTarget(testUserService);
         UserService txUserService = (UserService) txProxyFactoryBean.getObject();
-
-//        TransactionHandler txHandler = new TransactionHandler();
-//        txHandler.setTarget(testUserService);
-//        txHandler.setTransactionManager(transactionManager);
-//        txHandler.setPattern("upgradeLevels");
-//
-//        UserService txUserService = (UserService) Proxy.newProxyInstance(
-//                getClass().getClassLoader(),
-//                new Class[] { UserService.class },
-//                txHandler);
 
         userDao.deleteAll();
         for (User user : users) userDao.add(user);
@@ -140,28 +148,9 @@ public class UserServiceTest {
         } catch (TestUserServiceException e) {
 
         }
-
         checkLevelUpgraded(users.get(1), false);
     }
 
-    @Autowired
-    UserServiceImpl userService;
-
-    @Autowired
-    UserDao userDao;
-
-    List<User> users;
-
-    @Before
-    public void setUp() {
-        users = Arrays.asList(
-                new User("bumjin", "박범진", "p1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER - 1, 0, "bumjin@ruu.kr"),
-                new User("joytouch", "강명성", "p2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0, "joytouch@ruu.kr"),
-                new User("erwins", "신승한", "p3", Level.SILVER, 60, MIN_RECOMMEND_FOR_GOLD - 1, "erwins@ruu.kr"),
-                new User("madnite1", "이상호", "p4", Level.SILVER, 60, MIN_RECOMMEND_FOR_GOLD, "madnite1@ruu.kr"),
-                new User("green", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE, "green@ruu.kr")
-        );
-    }
 
     @Test
     public void upgradeLevels() throws Exception {
